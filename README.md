@@ -1,5 +1,11 @@
 # Disaster Response Pipeline Project
 
+### About the Project
+
+The goal of this project is an interactive webapp that is able to classify messages sent from areas in which natural disasters occured.
+The classification algorithm used is pretrained using a labeled dataset that consist of more than 20.000 messages and X possible labels. 
+
+
 ### Instructions:
 1. Run the following commands in the project's root directory to set up your database and model.
 
