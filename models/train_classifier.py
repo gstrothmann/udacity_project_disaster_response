@@ -18,6 +18,17 @@ from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.metrics import classification_report
 
 def load_data(database_filepath):
+    '''
+    Loads data from the specified database filepath and creates the variables X and Y, containing the features and labels of the training data. 
+    It also creates a list of category names.
+    
+    INPUT: database_filepath - string
+    OUTPUT:
+    X - list of strings
+    Y - pandas DataFrame
+    category_names - list of strings
+    
+    '''
     engine = create_engine('sqlite:///' + database_filepath)
     df = pd.read_sql_table('MessagesAndCategories', engine)
     X = df.message.values
@@ -27,6 +38,12 @@ def load_data(database_filepath):
 
 
 def tokenize(text):
+    '''
+    Tokenizes the provided text by removing punctuation, setting all letters to lower case, separating all words, removing stopwords and lemmatizing the words.   
+    
+    INPUT: text - string
+    OUTPUT: lemmed - list of strings
+    '''
     text = re.sub(r"[^a-zA-Z0-9]", " ", text.lower())
     words = word_tokenize(text)
     words = [w for w in words if w not in stopwords.words('english')]
@@ -35,6 +52,13 @@ def tokenize(text):
 
 
 def build_model():
+    '''
+    Builds a model pipeline that consists of a CountVectorizer, using the tokenizer function as a tokenizer, a TfidfTransforemer and a Multioutputclassifier function. 
+    The function uses GridSearchCV in order to find the best parameters of the used classifier (RandomForestClassifier) as well as the TFidFTransformer.
+        
+    INPUT: None
+    OUTPUT: model - GridSearchCV object
+    '''
     pipeline = Pipeline([
     ('vec', CountVectorizer(tokenizer = tokenize)),
     ('tfidf', TfidfTransformer()),
@@ -53,6 +77,18 @@ def build_model():
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
+    '''
+    Makes predictions with the pretrained model, using passed test data, and prints out classification reports for each label within the dataset.     
+    
+    INPUT:
+    model - classification model
+    X_test - list of lists with tokenized messages
+    Y_test - list of classification labels
+    category_names - list of strings
+    
+    OUTPUT: None
+    '''
+    
     Y_pred = model.predict(X_test)
     for i in range(Y_pred.shape[1]):
         print(category_names[i])
@@ -60,10 +96,25 @@ def evaluate_model(model, X_test, Y_test, category_names):
 
 
 def save_model(model, model_filepath):
+    '''
+    Saves model to a pickle file with the specified filepath.
+    
+    INPUT: 
+    model - sklearn model
+    model_filepath - string
+    
+    OUTPUT: None
+    '''
     pickle.dump(model, open(model_filepath, 'wb'))
 
 
 def main():
+    '''
+    Proceeds the steps of Building, Training, Evaluating and Saving a model.
+    
+    INPUT: None
+    OUTPUT: None
+    '''
     if len(sys.argv) == 3:
         database_filepath, model_filepath = sys.argv[1:]
         print('Loading data...\n    DATABASE: {}'.format(database_filepath))
